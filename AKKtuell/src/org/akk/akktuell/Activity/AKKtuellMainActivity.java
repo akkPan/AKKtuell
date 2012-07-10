@@ -1,8 +1,5 @@
 package org.akk.akktuell.Activity;
 
-import java.text.DateFormatSymbols;
-import java.util.GregorianCalendar;
-
 import org.akk.akktuell.R;
 import org.akk.akktuell.Model.AkkEvent;
 import org.akk.akktuell.Model.AkkEvent.AkkEventType;
@@ -25,32 +22,21 @@ public class AKKtuellMainActivity extends Activity  {
 	private InfoManager infoManager;
 	private ListView elementListView;
 	private GestureDetector gestureScanner;
-	private int monthCounter;
 	private static int MIN_SIZE_OF_GESTURE=800;
 	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        monthCounter = 0;
+        
         gestureScanner = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {			
 			@Override
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 					float velocityY) {
-				if (velocityX > MIN_SIZE_OF_GESTURE) {
-					if (infoManager.setCurrentMonth(new GregorianCalendar().get(GregorianCalendar.MONTH) + monthCounter - 1)) {
-						monthCounter--;
-					} else {
-						monthCounter = 11 - (new GregorianCalendar().get(GregorianCalendar.MONTH));
-					}
-				} else if (velocityX < -1*MIN_SIZE_OF_GESTURE){
-					if (infoManager.setCurrentMonth(new GregorianCalendar().get(GregorianCalendar.MONTH) + monthCounter + 1)) {
-						monthCounter++;
-					} else {
-						monthCounter = -(new GregorianCalendar().get(GregorianCalendar.MONTH));
-					}
-				} else {
-					//this is not a guesture we want to interpret
+				if (velocityX >= MIN_SIZE_OF_GESTURE) {
+					infoManager.decMonth();
+				} else if (velocityX <= -1*MIN_SIZE_OF_GESTURE){
+					infoManager.addMonth();
 				}
 				
 				AKKtuellMainActivity.this.displayData();
@@ -61,7 +47,7 @@ public class AKKtuellMainActivity extends Activity  {
         
         setContentView(R.layout.main);
         elementListView = (ListView) findViewById(R.id.main_element_listview);
-        //elementListView.addHeaderView(view, null, false);
+        
         elementListView.setOnItemClickListener(new OnItemClickListener() {  
         	@Override
         	public void onItemClick(AdapterView<?> parent, View view,
@@ -86,7 +72,8 @@ public class AKKtuellMainActivity extends Activity  {
     	}
 		View mainView = findViewById(R.id.main_activity_layout);
 		TextView listHeaderMonthName = (TextView) mainView.findViewById(R.id.main_activity_list_header);
-		listHeaderMonthName.setText(new DateFormatSymbols().getMonths()[new GregorianCalendar().get(GregorianCalendar.MONTH) + monthCounter]);
+		
+		listHeaderMonthName.setText(infoManager.getCurrentMonthName());
 		AkkEventAdapter adapter = new AkkEventAdapter(getApplicationContext(), infoManager.getEvents(), infoManager);
     	elementListView.setAdapter(adapter);    	
     } 

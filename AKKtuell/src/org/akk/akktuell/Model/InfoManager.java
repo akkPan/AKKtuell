@@ -1,13 +1,12 @@
 package org.akk.akktuell.Model;
 
+import java.text.DateFormatSymbols;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
-import org.akk.akktuell.Activity.AKKtuellEventView;
 import org.akk.akktuell.Model.downloader.AkkHomepageEventParser;
 import org.akk.akktuell.Model.downloader.EventDownloadListener;
 import org.akk.akktuell.Model.downloader.EventDownloader;
@@ -15,14 +14,10 @@ import org.akk.akktuell.database.*;
 
 
 public class InfoManager implements Runnable, EventDownloadListener {
-	
-	private boolean isOnline;
 
 	private CalendarBridge calendar;
 	
 	private ConnectivityManager conMgr;
-	
-	private Context applicationContext;
 	
 	private Thread databaseManager;
 	
@@ -35,7 +30,6 @@ public class InfoManager implements Runnable, EventDownloadListener {
 	private int currentMonth = new GregorianCalendar().get(GregorianCalendar.MONTH);
 	
 	public InfoManager(Context context) {
-		applicationContext = context;
 		eventsSortedByDate = new LinkedList<AkkEvent>();
 		database = Database.getInstance(context);
 		try {
@@ -49,12 +43,10 @@ public class InfoManager implements Runnable, EventDownloadListener {
 		databaseManager.start();
 		
 		//check online state
-		this.isOnline = false;
 		conMgr =  (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo[] netInfo = conMgr.getAllNetworkInfo();
 		for (NetworkInfo netInf: netInfo) {
 			if (netInf.isConnected()) {
-				this.isOnline = true;
 				break;
 			}
 		}
@@ -64,20 +56,6 @@ public class InfoManager implements Runnable, EventDownloadListener {
 		parser.addEventDownloadListener(this);
 		parser.updateEvents();
 	}
-	
-//	private void updateEvents() {
-//		if (this.isOnline) {
-//			if (updater.updateNeeded()) {
-//				t = new Thread(updater);
-//				t.run();
-//			} else {
-//				Log.d("InfoManager", "No updated required");
-//			}
-//		} else {
-//			Log.d("Updater", "Unable to update: no internet connection");
-//		}
-//	}
-
 
 	public boolean readyToDisplayData() {
 		return !this.eventsSortedByDate.isEmpty();
@@ -105,12 +83,16 @@ public class InfoManager implements Runnable, EventDownloadListener {
 		return result;
 	}
 	
-	public boolean setCurrentMonth(int month) {
-		if (month >= 0 && month < 12) {
-			currentMonth = month;
-			return true;
-		}
-		return false;
+	public void addMonth() {
+		currentMonth = (currentMonth + 1) % 12;
+	}
+	
+	public void decMonth() {
+		currentMonth = (currentMonth + 11) % 12;
+	}
+	
+	public String getCurrentMonthName() {
+		return new DateFormatSymbols().getMonths()[currentMonth];
 	}
 
 	@Override
