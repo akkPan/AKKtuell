@@ -29,6 +29,8 @@ public class AKKtuellMainActivity extends Activity  {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        infoManager = new InfoManager(getApplicationContext());
+        
         gestureScanner = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {			
 			@Override
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
@@ -43,7 +45,6 @@ public class AKKtuellMainActivity extends Activity  {
 				return false;
 			}
 		});
-        infoManager = new InfoManager(getApplicationContext());
         
         setContentView(R.layout.main);
         elementListView = (ListView) findViewById(R.id.main_element_listview);
@@ -53,13 +54,20 @@ public class AKKtuellMainActivity extends Activity  {
         	public void onItemClick(AdapterView<?> parent, View view,
         			int position, long id) {
         			AkkEvent clickedEvent = (AkkEvent) AKKtuellMainActivity.this.elementListView.getAdapter().getItem(position);
-        			if (clickedEvent != null && !(clickedEvent.getEventType() == AkkEventType.Veranstaltungshinweis)) {
-        				Intent intent = new Intent(AKKtuellMainActivity.this,AKKtuellEventView.class);
-        				intent.putExtra("EVENT_NAME", clickedEvent.getEventName());
-        				intent.putExtra("EVENT_DATE", "test");
-        				intent.putExtra("EVENT_DESCRIPTION", clickedEvent.getEventDescription());
-        				startActivity(intent);
+        			
+        			if (clickedEvent == null) {
+        				return;
         			}
+        			
+        			if (clickedEvent.getEventType() == AkkEventType.Veranstaltungshinweis) {
+        				return;
+        			}
+        			
+    				Intent intent = new Intent(AKKtuellMainActivity.this,AKKtuellEventView.class);
+    				intent.putExtra("EVENT_NAME", clickedEvent.getEventName());
+    				intent.putExtra("EVENT_DATE", "test");
+    				intent.putExtra("EVENT_DESCRIPTION", clickedEvent.getEventDescription());
+    				startActivity(intent);
         		}
         });
         displayData();
@@ -80,10 +88,10 @@ public class AKKtuellMainActivity extends Activity  {
     
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
-	    if (gestureScanner != null) {
-	        if (gestureScanner.onTouchEvent(ev))
-	            return true;
-	    }
+        if (gestureScanner.onTouchEvent(ev)) {
+            return true;
+        }
+        
 	    return super.dispatchTouchEvent(ev);
 	}
 	
