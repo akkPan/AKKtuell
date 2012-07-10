@@ -22,7 +22,6 @@ public class AKKtuellMainActivity extends Activity  {
 	private InfoManager infoManager;
 	private ListView elementListView;
 	private GestureDetector gestureScanner;
-	private static int MIN_SIZE_OF_GESTURE=800;
 	
 	
     @Override
@@ -31,20 +30,7 @@ public class AKKtuellMainActivity extends Activity  {
         
         infoManager = new InfoManager(getApplicationContext());
         
-        gestureScanner = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {			
-			@Override
-			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-					float velocityY) {
-				if (velocityX >= MIN_SIZE_OF_GESTURE) {
-					infoManager.decMonth();
-				} else if (velocityX <= -1*MIN_SIZE_OF_GESTURE){
-					infoManager.addMonth();
-				}
-				
-				AKKtuellMainActivity.this.displayData();
-				return false;
-			}
-		});
+        gestureScanner = new GestureDetector(new GestureScanner(this, infoManager));
         
         setContentView(R.layout.main);
         elementListView = (ListView) findViewById(R.id.main_element_listview);
@@ -74,7 +60,7 @@ public class AKKtuellMainActivity extends Activity  {
         
     }
     
-    private void displayData() {
+    protected void displayData() {
     	while (!infoManager.readyToDisplayData()) {
     		//wait for data update
     	}
