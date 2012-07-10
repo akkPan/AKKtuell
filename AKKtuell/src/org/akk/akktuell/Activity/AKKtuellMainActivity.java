@@ -1,19 +1,14 @@
 package org.akk.akktuell.Activity;
 
 import org.akk.akktuell.R;
-import org.akk.akktuell.Model.AkkEvent;
-import org.akk.akktuell.Model.AkkEvent.AkkEventType;
 import org.akk.akktuell.Model.InfoManager;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -34,28 +29,8 @@ public class AKKtuellMainActivity extends Activity  {
         
         setContentView(R.layout.main);
         elementListView = (ListView) findViewById(R.id.main_element_listview);
+        elementListView.setOnItemClickListener(new AKKOnItemClickListener(this, elementListView));
         
-        elementListView.setOnItemClickListener(new OnItemClickListener() {  
-        	@Override
-        	public void onItemClick(AdapterView<?> parent, View view,
-        			int position, long id) {
-        			AkkEvent clickedEvent = (AkkEvent) AKKtuellMainActivity.this.elementListView.getAdapter().getItem(position);
-        			
-        			if (clickedEvent == null) {
-        				return;
-        			}
-        			
-        			if (clickedEvent.getEventType() == AkkEventType.Veranstaltungshinweis) {
-        				return;
-        			}
-        			
-    				Intent intent = new Intent(AKKtuellMainActivity.this,AKKtuellEventView.class);
-    				intent.putExtra("EVENT_NAME", clickedEvent.getEventName());
-    				intent.putExtra("EVENT_DATE", "test");
-    				intent.putExtra("EVENT_DESCRIPTION", clickedEvent.getEventDescription());
-    				startActivity(intent);
-        		}
-        });
         displayData();
         
     }
